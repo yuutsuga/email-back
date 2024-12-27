@@ -30,7 +30,7 @@ const loggedMiddleware: RequestHandler = (req, res, next) => {
             return res.status(401).send(error);
         }
 
-        res.locals.userId = (decoded as jwt.JwtPayload).id;
+        res.locals.id = (decoded as jwt.JwtPayload).id;
 
         next();
     });
@@ -238,26 +238,36 @@ router.post('/new-message', loggedMiddleware, async (req, res) => {
 router.get('/message/received', loggedMiddleware, async (req, res) => {
     const { id } = res.locals;
 
-    const result = await prisma.message.findMany({
-        where: {
-            recipientId: id
-        }
+    res.status(200).send({
+        result: await prisma.message.findMany({
+            where: { 
+                recipientId: id
+            },
+            select: {
+                title: true,
+                content: true,
+                createdAt: true            
+            }   
+        })
     });
-
-    res.status(200).send({ result });
 });
 
 // route to get messages sended
 router.get('/message/sended', loggedMiddleware, async (req, res) => {
     const { id } = res.locals;
 
-    const result = await prisma.message.findMany({
-        where: {
-            senderId: id
-        }
+    res.status(200).send({
+        result: await prisma.message.findMany({
+            where: { 
+                senderId: id
+            },
+            select: {
+                title: true,
+                content: true,
+                createdAt: true            
+            }   
+        })
     });
-
-    res.status(200).send({ result });
 });
 
 
